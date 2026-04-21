@@ -63,11 +63,11 @@ export default function MediaRow({ title, items, type = "mixed", seeAllHref }: M
               <MediaCard
                 key={`${itemType}-${item.id}`}
                 id={item.id}
-                title={item.title || item.name || ""}
+                title={'title' in item ? item.title : item.name}
                 posterPath={item.poster_path}
                 type={itemType}
                 voteAverage={item.vote_average}
-                releaseDate={item.release_date || item.first_air_date}
+                releaseDate={'release_date' in item ? item.release_date : item.first_air_date}
               />
             );
           })}

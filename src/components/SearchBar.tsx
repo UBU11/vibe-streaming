@@ -116,7 +116,7 @@ export default function SearchBar({
               <button
                 className="search-bar__suggestion-item"
                 onClick={() => {
-                  setQuery(item.title || item.name || "");
+                  setQuery(('title' in item ? item.title : item.name) || "");
                   setIsOpen(false);
                   const type = item.media_type === "movie" ? "movie" : "show";
                   router.push(`/watch/${type}/${item.id}`);
@@ -125,7 +125,7 @@ export default function SearchBar({
                 <span style={{ fontSize: '0.8rem', padding: '2px 6px', background: 'var(--color-primary)', border: '2px solid #000', borderRadius: '4px', marginRight: '8px' }}>
                   {item.media_type === 'movie' ? 'MOVIE' : 'SERIES'}
                 </span>
-                {item.title || item.name}
+                {'title' in item ? item.title : item.name}
               </button>
             </li>
           ))}
