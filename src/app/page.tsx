@@ -25,7 +25,7 @@ export default async function HomePage() {
                    
       return {
         id: show.id,
-        title: show.name || show.title || "Unknown Title",
+        title: show.name || "Unknown Title",
         overview: show.overview,
         backdropPath: show.backdrop_path,
         trailerKey: trailer ? trailer.key : null,

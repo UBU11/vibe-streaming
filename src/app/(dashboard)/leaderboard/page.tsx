@@ -121,7 +121,7 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
                 key={anime.id}
                 id={anime.id}
                 rank={index + 1}
-                title={anime.name || anime.title || "Unknown Anime"}
+                title={anime.name || "Unknown Anime"}
                 posterPath={anime.poster_path}
                 voteAverage={anime.vote_average}
                 type="tv"

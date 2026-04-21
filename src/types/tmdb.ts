@@ -22,7 +22,7 @@ export interface TMDBShow {
   media_type?: "tv";
 }
 
-export interface TMDBMedia extends TMDBMovie, TMDBShow {}
+export type TMDBMedia = TMDBMovie | TMDBShow;
 
 export interface TMDBMovieDetails extends TMDBMovie {
   genres: { id: number; name: string }[];
