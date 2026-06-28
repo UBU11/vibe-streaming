@@ -4,23 +4,14 @@ import React, { createContext, useContext, useState, useCallback, useRef } from 
 import type { PlayerState } from "@/types";
 
 interface VideoPlayerContextType {
-  /** Currently loaded video ID */
   activeVideoId: string | null;
-  /** Player state */
   playerState: PlayerState;
-  /** Load a new video into the persistent player */
   loadVideo: (videoId: string, hlsUrl: string) => void;
-  /** Update playback progress */
   updateProgress: (currentTime: number, duration: number) => void;
-  /** Play / Pause toggle */
   togglePlay: () => void;
-  /** Set volume (0-1) */
   setVolume: (volume: number) => void;
-  /** Toggle mute */
   toggleMute: () => void;
-  /** The HLS source URL */
   hlsUrl: string | null;
-  /** Reference to the video element for external control */
   videoRef: React.RefObject<HTMLVideoElement | null>;
 }
 

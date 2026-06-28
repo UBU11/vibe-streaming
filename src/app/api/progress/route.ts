@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { videoId, currentTime, duration } = body;
+    const { videoId, currentTime } = body;
 
     if (!videoId || currentTime === undefined) {
       return NextResponse.json({ success: false, error: "videoId and currentTime required" }, { status: 400 });
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     // Batch write to Turso periodically
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: "Failed to save progress" }, { status: 500 });
   }
 }

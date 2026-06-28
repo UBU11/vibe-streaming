@@ -16,7 +16,7 @@ function getExternalSourceName(url: string) {
     if (hostname.includes('mangamo')) return 'Mangamo';
     if (hostname.includes('inkr')) return 'INKR';
     return hostname.replace('www.', '');
-  } catch (e) {
+  } catch {
     return 'External';
   }
 }
@@ -54,7 +54,7 @@ export default async function MangaDetailsPage({ params }: { params: Promise<{ i
 
       <div style={{ display: 'flex', gap: '48px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
-        {/* Left Sidebar: Cover and Details */}
+        {/* Cover and details */}
         <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{
             width: '100%',
@@ -78,7 +78,7 @@ export default async function MangaDetailsPage({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        {/* Right Main Area: Title, Desc, Chapters */}
+        {/* Title, description and chapters */}
         <div style={{ flex: '1', minWidth: '300px' }}>
           <h1 style={{ fontSize: 'clamp(3rem, 5vw, 4.5rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', textShadow: '2px 2px 0px var(--color-accent-2), 4px 4px 0px #000' }}>
             {manga.title}
@@ -90,7 +90,7 @@ export default async function MangaDetailsPage({ params }: { params: Promise<{ i
             </p>
           </div>
 
-          {/* Chapters List */}
+          {/* Chapters list */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
             <h2 style={{ fontSize: '2.5rem', fontWeight: 900, textShadow: '2px 2px 0px #000', WebkitTextStroke: '1px #000', color: 'var(--color-accent-1)' }}>
               Chapters
@@ -123,12 +123,12 @@ export default async function MangaDetailsPage({ params }: { params: Promise<{ i
                             <span>Chapter {chapter.chapter} {chapter.title ? `- ${chapter.title}` : ''}</span>
                             {isExternal && (
                               <span style={{ fontSize: '0.8rem', background: '#e0e0e0', color: '#333', padding: '2px 8px', borderRadius: '4px', border: '1px solid #999', fontWeight: 'bold' }}>
-                                🔗 {sourceName}
+                                {sourceName}
                               </span>
                             )}
                           </div>
                           <span style={{ background: isExternal ? 'var(--color-primary)' : '#000', color: isExternal ? '#000' : '#fff', padding: '4px 12px', borderRadius: '4px', fontSize: '1rem', border: isExternal ? '2px solid #000' : 'none' }}>
-                            {isExternal ? `Read on ${sourceName} ↗` : 'Read ▶'}
+                            {isExternal ? `Read on ${sourceName}` : 'Read'}
                           </span>
                         </Link>
                       );

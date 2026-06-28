@@ -9,7 +9,7 @@ interface EpisodeListProps {
   showId: number;
   seasons: TMDBSeason[];
   currentSeasonNumber: number;
-  currentEpisodeNumber?: number; // Optional, if we are on a specific episode
+  currentEpisodeNumber?: number;
   episodes: TMDBEpisode[];
 }
 
@@ -24,7 +24,6 @@ export default function EpisodeList({
 
   const handleSeasonChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSeason = e.target.value;
-    // Go to first episode of selected season
     router.push(`/watch/show/${showId}/${newSeason}/1`);
   };
 

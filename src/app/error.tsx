@@ -10,7 +10,6 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service if needed
     console.error("Global Error Boundary caught:", error);
   }, [error]);
 
@@ -30,7 +29,7 @@ export default function GlobalError({
             Connection to TMDB servers was blocked or reset by your network.
           </p>
           <p style={{ fontSize: '1.1rem', background: '#fff', padding: '16px', border: '3px solid #000', color: '#000', fontWeight: 'bold' }}>
-            💡 Next Steps: Certain ISPs block access to the TMDB API. If you are experiencing repeated "fetch failed" or "ECONNRESET" errors, please try connecting to a VPN or using a different network, then click Try Again.
+            Next Steps: Certain ISPs block access to the TMDB API. If you are experiencing repeated &quot;fetch failed&quot; or &quot;ECONNRESET&quot; errors, please try connecting to a VPN or using a different network, then click Try Again.
           </p>
         </div>
       ) : (
@@ -39,7 +38,7 @@ export default function GlobalError({
         </p>
       )}
 
-      {/* Show the raw error for debugging purposes */}
+      {/* Raw error retained for debugging */}
       {!error.message.includes("TMDB_API_KEY") && (
         <pre style={{ background: '#000', color: '#00ff00', padding: '16px', borderRadius: '4px', maxWidth: '800px', overflowX: 'auto', marginBottom: '32px', textAlign: 'left' }}>
           <code>{error.message}</code>
@@ -50,7 +49,7 @@ export default function GlobalError({
         className="btn btn--primary btn--lg"
         onClick={() => reset()}
       >
-        🔄 TRY AGAIN
+        TRY AGAIN
       </button>
     </div>
   );

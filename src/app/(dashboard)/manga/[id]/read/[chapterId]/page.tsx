@@ -14,7 +14,7 @@ export default async function MangaReaderPage({ params }: { params: Promise<{ id
 
   if (!manga || pages.length === 0) return notFound();
 
-  // Find current chapter to show title/number
+  // Find the current chapter so we can show its title/number and prev/next links.
   const currentChapterIndex = chapters.findIndex(c => c.id === resolvedParams.chapterId);
   const currentChapter = chapters[currentChapterIndex];
 
@@ -24,7 +24,7 @@ export default async function MangaReaderPage({ params }: { params: Promise<{ id
 
   return (
     <div style={{ backgroundColor: '#111', minHeight: '100vh', color: '#fff' }}>
-      {/* Reader Header */}
+      {/* Header */}
       <div style={{
         position: 'sticky',
         top: 0,
@@ -67,10 +67,10 @@ export default async function MangaReaderPage({ params }: { params: Promise<{ id
               borderRadius: '8px',
               border: '2px solid #000'
             }}>
-              ⏮ Prev
+              &lt;&lt; Prev
             </Link>
           ) : (
-            <span style={{ padding: '8px 16px', color: '#555', fontWeight: 900 }}>⏮ Prev</span>
+            <span style={{ padding: '8px 16px', color: '#555', fontWeight: 900 }}>&lt;&lt; Prev</span>
           )}
 
           {nextChapter ? (
@@ -83,15 +83,15 @@ export default async function MangaReaderPage({ params }: { params: Promise<{ id
               borderRadius: '8px',
               border: '2px solid #000'
             }}>
-              Next ⏭
+              Next &gt;&gt;
             </Link>
           ) : (
-            <span style={{ padding: '8px 16px', color: '#555', fontWeight: 900 }}>Next ⏭</span>
+            <span style={{ padding: '8px 16px', color: '#555', fontWeight: 900 }}>Next &gt;&gt;</span>
           )}
         </div>
       </div>
 
-      {/* Reader Area (Vertical Webtoon Style) */}
+      {/* Vertical webtoon-style reader area */}
       <div style={{
         maxWidth: '800px',
         margin: '0 auto',
@@ -117,7 +117,7 @@ export default async function MangaReaderPage({ params }: { params: Promise<{ id
         ))}
       </div>
 
-      {/* Reader Footer (same navigation) */}
+      {/* Footer navigation */}
       <div style={{
         backgroundColor: '#000',
         borderTop: '4px solid var(--color-accent-2)',

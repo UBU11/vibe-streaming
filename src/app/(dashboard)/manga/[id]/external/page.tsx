@@ -57,7 +57,7 @@ export default async function ExternalMangaReaderPage({
           borderRadius: '8px',
           border: '2px solid #000'
         }}>
-          Open in New Tab ↗
+          Open in New Tab
         </a>
       </div>
 
@@ -74,9 +74,9 @@ export default async function ExternalMangaReaderPage({
           textAlign: 'center',
           zIndex: 1
         }}>
-          <h3 style={{ marginBottom: '16px', color: '#fff' }}>If the reader doesn't load below...</h3>
+          <h3 style={{ marginBottom: '16px', color: '#fff' }}>If the reader doesn&apos;t load below...</h3>
           <p>The publisher (like MangaPlus or VIZ) has blocked this website from embedding their reader.</p>
-          <p>Please click the <strong>"Open in New Tab ↗"</strong> button in the top right to read it directly on their site!</p>
+          <p>Please click the <strong>&quot;Open in New Tab&quot;</strong> button in the top right to read it directly on their site!</p>
         </div>
 
         <iframe 

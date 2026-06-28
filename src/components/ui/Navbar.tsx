@@ -10,7 +10,6 @@ export default function Navbar() {
   return (
     <nav className="navbar" id="main-navbar">
       <div className="navbar__container">
-        {/* Logo */}
         <Link href="/" className="navbar__logo" id="navbar-logo">
           <div className="navbar__logo-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%', filter: 'drop-shadow(2px 2px 0px #000)' }}>
@@ -20,7 +19,6 @@ export default function Navbar() {
           <span className="navbar__logo-text">VIBE</span>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="navbar__center">
           <SearchBar />
         </div>
@@ -30,13 +28,13 @@ export default function Navbar() {
             <span className="navbar__link-text">Browse</span>
           </Link>
           <Link href="/leaderboard" className="navbar__link" id="nav-leaderboard">
-            <span className="navbar__link-text">🏆 Leaderboard</span>
+            <span className="navbar__link-text">Leaderboard</span>
           </Link>
           <Link href="/manga" className="navbar__link" id="nav-manga">
-            <span className="navbar__link-text">📚 Manga</span>
+            <span className="navbar__link-text">Manga</span>
           </Link>
           <a href="/api/random" className="navbar__link" id="nav-random" style={{ background: 'var(--color-primary)', color: '#000' }}>
-            <span className="navbar__link-text">🎲 Surprise Me</span>
+            <span className="navbar__link-text">Surprise Me</span>
           </a>
           <Link href="/library" className="navbar__link" id="nav-library">
             <span className="navbar__link-text">Library</span>
@@ -50,7 +48,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile menu toggle */}
         <button
           className="navbar__mobile-toggle"
           id="mobile-menu-toggle"
@@ -68,7 +65,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
       <div
         className={`navbar__mobile-menu ${isMobileMenuOpen ? "navbar__mobile-menu--open" : ""}`}
         id="mobile-menu"
@@ -80,13 +76,13 @@ export default function Navbar() {
           Browse
         </Link>
         <Link href="/leaderboard" className="navbar__mobile-link" onClick={() => setIsMobileMenuOpen(false)}>
-          🏆 Leaderboard
+          Leaderboard
         </Link>
         <Link href="/manga" className="navbar__mobile-link" onClick={() => setIsMobileMenuOpen(false)}>
-          📚 Manga
+          Manga
         </Link>
         <a href="/api/random" className="navbar__mobile-link" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'var(--color-accent-1)' }}>
-          🎲 Surprise Me
+          Surprise Me
         </a>
         <Link href="/library" className="navbar__mobile-link" onClick={() => setIsMobileMenuOpen(false)}>
           Library

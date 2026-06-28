@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import VideoCard from "@/components/VideoCard";
+import { useHorizontalScroll } from "@/hooks/use-horizontal-scroll";
 import type { Video } from "@/types";
 
 interface CategoryRowProps {
@@ -10,21 +11,8 @@ interface CategoryRowProps {
   seeAllHref?: string;
 }
 
-export default function CategoryRow({
-  title,
-  videos,
-  seeAllHref,
-}: CategoryRowProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.8;
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
-  };
+export default function CategoryRow({ title, videos, seeAllHref }: CategoryRowProps) {
+  const { scrollRef, scroll } = useHorizontalScroll<HTMLDivElement>();
 
   if (!videos || videos.length === 0) return null;
 

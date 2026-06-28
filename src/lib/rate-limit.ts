@@ -34,9 +34,6 @@ export const authRateLimit = new Ratelimit({
   prefix: "ratelimit:auth",
 });
 
-/**
- * Helper to check rate limit and return appropriate response
- */
 export async function checkRateLimit(
   limiter: Ratelimit,
   identifier: string

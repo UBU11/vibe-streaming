@@ -22,9 +22,6 @@ export async function cached<T>(
   return fresh;
 }
 
-/**
- * Invalidate a cache key or pattern
- */
 export async function invalidateCache(key: string): Promise<void> {
   await redis.del(key);
 }

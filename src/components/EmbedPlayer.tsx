@@ -12,10 +12,6 @@ interface EmbedPlayerProps {
 export default function EmbedPlayer({ type, tmdbId, season, episode }: EmbedPlayerProps) {
   const [isLoading, setIsLoading] = useState(true);
 
-  // According to .env: 
-  // VIDFAST_MOVIE_ENDPOINT=https://vidfast.pro/movie/{id}?autoPlay=true
-  // VIDFAST_SHOW_ENDPOINT=https://vidfast.pro/tv/{id}/{season}/{episode}?autoPlay=true
-  
   let src = "";
   if (type === "movie") {
     src = `https://vidfast.pro/movie/${tmdbId}?autoPlay=true`;

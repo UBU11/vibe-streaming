@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { getTrendingMovies, getTrendingShows } from "@/lib/tmdb";
+import type { TMDBMovie, TMDBShow } from "@/types/tmdb";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type") || "all";
 
   try {
-    let movies: any[] = [];
-    let shows: any[] = [];
+    let movies: TMDBMovie[] = [];
+    let shows: TMDBShow[] = [];
 
     if (type === "all" || type === "movie") {
       movies = await getTrendingMovies("day");

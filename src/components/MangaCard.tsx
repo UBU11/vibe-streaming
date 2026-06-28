@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { MangaData } from "@/lib/mangadex";
+import type { MangaData } from "@/types/mangadex";
 
 interface MangaCardProps {
   manga: MangaData;

@@ -2,26 +2,16 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-/**
- * Middleware: protects dashboard routes and injects security headers.
- * Matches Agent.md §2.2 (authenticated dashboard) and §4 (security headers).
- */
+// Protects dashboard routes and injects security headers (Agent.md §2.2, §4).
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ─── Protected Routes ───────────────────────────────
   const protectedPaths = ["/library", "/history", "/watch"];
-  const isProtected = protectedPaths.some((path) =>
-    pathname.startsWith(path)
-  );
+  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
 
   if (isProtected) {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-
-    // TEMPORARY: Bypass auth for prototype
+    await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    // ponytail: auth bypassed for the prototype; reinstate the redirect-to-/ guard below when sessions are required.
     // if (!token) {
     //   const signInUrl = new URL("/", request.url);
     //   signInUrl.searchParams.set("callbackUrl", pathname);
@@ -29,7 +19,6 @@ export async function middleware(request: NextRequest) {
     // }
   }
 
-  // ─── Security Headers ──────────────────────────────
   const response = NextResponse.next();
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -48,12 +37,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all routes except:
-     * - api/auth (NextAuth handlers)
-     * - _next (static assets)
-     * - favicon, public assets
-     */
+    // Match everything except NextAuth handlers, static assets, favicons and SVGs.
     "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.svg$).*)",
   ],
 };

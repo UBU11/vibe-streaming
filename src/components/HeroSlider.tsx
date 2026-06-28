@@ -13,6 +13,8 @@ export interface HeroSlideItem {
   type: "movie" | "tv";
 }
 
+const SLIDE_INTERVAL_MS = 10000;
+
 export default function HeroSlider({ items }: { items: HeroSlideItem[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -21,7 +23,7 @@ export default function HeroSlider({ items }: { items: HeroSlideItem[] }) {
 
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % items.length);
-    }, 10000); // 10 seconds
+    }, SLIDE_INTERVAL_MS);
 
     return () => clearInterval(timer);
   }, [items]);
@@ -39,7 +41,6 @@ export default function HeroSlider({ items }: { items: HeroSlideItem[] }) {
             className={`hero-slide ${isActive ? 'hero-slide--active' : ''}`}
             style={{ zIndex: isActive ? 1 : 0, opacity: isActive ? 1 : 0 }}
           >
-            {/* Background Media */}
             <div className="hero-slide__bg">
               {isActive && item.trailerKey ? (
                 <div className="hero-slide__video-wrapper">
@@ -62,7 +63,6 @@ export default function HeroSlider({ items }: { items: HeroSlideItem[] }) {
               <div className="hero-slide__overlay"></div>
             </div>
 
-            {/* Content overlay */}
             <div className="hero-slide__content-container">
               <div className="hero-slide__content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <span className="hero-slide__badge" style={{ 
@@ -109,7 +109,7 @@ export default function HeroSlider({ items }: { items: HeroSlideItem[] }) {
                   <Link href={`/watch/${item.type === 'tv' ? 'show' : 'movie'}/${item.id}`} 
                         className="btn btn--primary btn--lg" 
                         style={{ borderRadius: '8px', padding: '12px 32px', fontSize: '1.2rem', boxShadow: '0 4px 14px 0 rgba(255, 51, 102, 0.39)' }}>
-                    ▶ WATCH NOW
+                    WATCH NOW
                   </Link>
                   <Link href="/library" 
                         className="btn btn--secondary btn--lg"
@@ -123,7 +123,6 @@ export default function HeroSlider({ items }: { items: HeroSlideItem[] }) {
         );
       })}
 
-      {/* Slider Controls / Indicators */}
       <div className="hero-slider__indicators">
         {items.map((_, idx) => (
           <button 

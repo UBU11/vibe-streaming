@@ -1,105 +1,57 @@
-// src/lib/mangadex.ts
+import type {
+  ChapterData,
+  ChapterListResponse,
+  MangaData,
+  MangaListResponse,
+  MangadexRawChapter,
+  MangadexRawManga,
+} from "@/types/mangadex";
 
 const MANGADEX_API_URL = "https://api.mangadex.org";
 const MANGADEX_UPLOADS_URL = "https://uploads.mangadex.org";
+const PLACEHOLDER_COVER = "/placeholder-thumb.svg";
 
-export interface MangaData {
-  id: string;
-  title: string;
-  description: string;
-  coverUrl: string | null;
-  status: string;
-  year: number | null;
+function pickLocalized(record: Record<string, string>, fallback: string): string {
+  return record.en || record["ja-ro"] || Object.values(record)[0] || fallback;
 }
 
-/**
- * Fetch top manga from MangaDex sorted by followedCount
- */
-export async function getTopManga(limit: number = 20, offset: number = 0): Promise<MangaData[]> {
+function transformManga(manga: MangadexRawManga): MangaData {
+  const coverFileName = manga.relationships.find((rel) => rel.type === "cover_art")?.attributes?.fileName;
+
+  return {
+    id: manga.id,
+    title: pickLocalized(manga.attributes.title, "Unknown Title"),
+    description: pickLocalized(manga.attributes.description, "No description available."),
+    coverUrl: coverFileName
+      ? `${MANGADEX_UPLOADS_URL}/covers/${manga.id}/${coverFileName}.512.jpg`
+      : PLACEHOLDER_COVER,
+    status: manga.attributes.status,
+    year: manga.attributes.year,
+  };
+}
+
+async function fetchMangadex<T>(url: string): Promise<T> {
+  const response = await fetch(url, { cache: "no-store" });
+  if (!response.ok) throw new Error(`MangaDex API error: ${response.status}`);
+  return response.json() as Promise<T>;
+}
+
+export async function getTopManga(limit = 20, offset = 0): Promise<MangaData[]> {
+  const url = `${MANGADEX_API_URL}/manga?includes[]=cover_art&order[followedCount]=desc&limit=${limit}&offset=${offset}&contentRating[]=safe&contentRating[]=suggestive&availableTranslatedLanguage[]=en`;
   try {
-    const response = await fetch(
-      `${MANGADEX_API_URL}/manga?includes[]=cover_art&order[followedCount]=desc&limit=${limit}&offset=${offset}&contentRating[]=safe&contentRating[]=suggestive&availableTranslatedLanguage[]=en`,
-      { cache: "no-store" }
-    );
-
-    if (!response.ok) {
-      throw new Error(`MangaDex API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    return data.data.map((manga: any) => {
-      // Extract title (usually EN, fallback to original or romanized)
-      const titleObj = manga.attributes.title;
-      const title = titleObj.en || titleObj["ja-ro"] || Object.values(titleObj)[0] || "Unknown Title";
-
-      // Extract description
-      const descObj = manga.attributes.description;
-      const description = descObj.en || Object.values(descObj)[0] || "No description available.";
-
-      // Extract cover art filename from relationships
-      let coverFileName = null;
-      const coverRel = manga.relationships.find((rel: any) => rel.type === "cover_art");
-      if (coverRel && coverRel.attributes && coverRel.attributes.fileName) {
-        coverFileName = coverRel.attributes.fileName;
-      }
-
-      // Construct cover URL
-      const coverUrl = coverFileName
-        ? `${MANGADEX_UPLOADS_URL}/covers/${manga.id}/${coverFileName}.512.jpg`
-        : "/placeholder-thumb.svg";
-
-      return {
-        id: manga.id,
-        title,
-        description,
-        coverUrl,
-        status: manga.attributes.status,
-        year: manga.attributes.year,
-      };
-    });
+    const { data } = await fetchMangadex<MangaListResponse>(url);
+    return data.map(transformManga);
   } catch (error) {
     console.error("Failed to fetch top manga:", error);
     return [];
   }
 }
 
-export async function searchManga(query: string, limit: number = 20): Promise<MangaData[]> {
+export async function searchManga(query: string, limit = 20): Promise<MangaData[]> {
+  const url = `${MANGADEX_API_URL}/manga?title=${encodeURIComponent(query)}&includes[]=cover_art&order[relevance]=desc&limit=${limit}&contentRating[]=safe&contentRating[]=suggestive&availableTranslatedLanguage[]=en`;
   try {
-    const response = await fetch(
-      `${MANGADEX_API_URL}/manga?title=${encodeURIComponent(query)}&includes[]=cover_art&order[relevance]=desc&limit=${limit}&contentRating[]=safe&contentRating[]=suggestive&availableTranslatedLanguage[]=en`,
-      { cache: "no-store" }
-    );
-
-    if (!response.ok) throw new Error("Search failed");
-    const data = await response.json();
-
-    return data.data.map((manga: any) => {
-      const titleObj = manga.attributes.title;
-      const title = titleObj.en || titleObj["ja-ro"] || Object.values(titleObj)[0] || "Unknown Title";
-
-      const descObj = manga.attributes.description;
-      const description = descObj.en || Object.values(descObj)[0] || "No description available.";
-
-      let coverFileName = null;
-      const coverRel = manga.relationships.find((rel: any) => rel.type === "cover_art");
-      if (coverRel && coverRel.attributes && coverRel.attributes.fileName) {
-        coverFileName = coverRel.attributes.fileName;
-      }
-
-      const coverUrl = coverFileName
-        ? `${MANGADEX_UPLOADS_URL}/covers/${manga.id}/${coverFileName}.512.jpg`
-        : "/placeholder-thumb.svg";
-
-      return {
-        id: manga.id,
-        title,
-        description,
-        coverUrl,
-        status: manga.attributes.status,
-        year: manga.attributes.year,
-      };
-    });
+    const { data } = await fetchMangadex<MangaListResponse>(url);
+    return data.map(transformManga);
   } catch (error) {
     console.error("Failed to search manga:", error);
     return [];
@@ -108,86 +60,37 @@ export async function searchManga(query: string, limit: number = 20): Promise<Ma
 
 export async function getMangaDetails(id: string): Promise<MangaData | null> {
   try {
-    const response = await fetch(
-      `${MANGADEX_API_URL}/manga/${id}?includes[]=cover_art`,
-      { cache: "no-store" }
-    );
-
-    if (!response.ok) return null;
-    const data = await response.json();
-    const manga = data.data;
-
-    const titleObj = manga.attributes.title;
-    const title = titleObj.en || titleObj["ja-ro"] || Object.values(titleObj)[0] || "Unknown Title";
-
-    const descObj = manga.attributes.description;
-    const description = descObj.en || Object.values(descObj)[0] || "No description available.";
-
-    let coverFileName = null;
-    const coverRel = manga.relationships.find((rel: any) => rel.type === "cover_art");
-    if (coverRel && coverRel.attributes && coverRel.attributes.fileName) {
-      coverFileName = coverRel.attributes.fileName;
-    }
-
-    const coverUrl = coverFileName
-      ? `${MANGADEX_UPLOADS_URL}/covers/${manga.id}/${coverFileName}.512.jpg`
-      : "/placeholder-thumb.svg";
-
-    return {
-      id: manga.id,
-      title,
-      description,
-      coverUrl,
-      status: manga.attributes.status,
-      year: manga.attributes.year,
-    };
+    const { data } = await fetchMangadex<{ data: MangadexRawManga }>(`${MANGADEX_API_URL}/manga/${id}?includes[]=cover_art`);
+    return transformManga(data);
   } catch (error) {
     console.error("Failed to fetch manga details:", error);
     return null;
   }
 }
 
-export interface ChapterData {
-  id: string;
-  chapter: string;
-  volume: string;
-  title: string | null;
-  pages: number;
-  externalUrl: string | null;
-}
-
 export async function getMangaFeed(id: string): Promise<ChapterData[]> {
   try {
-    let allChapters: any[] = [];
-    let offset = 0;
+    const chapters: MangadexRawChapter[] = [];
     const limit = 500;
-    let hasMore = true;
+    let offset = 0;
+    let batch: MangadexRawChapter[];
 
-    while (hasMore) {
-      const response = await fetch(
-        `${MANGADEX_API_URL}/manga/${id}/feed?translatedLanguage[]=en&order[chapter]=desc&limit=${limit}&offset=${offset}`,
-        { cache: "no-store" }
+    do {
+      const { data } = await fetchMangadex<ChapterListResponse>(
+        `${MANGADEX_API_URL}/manga/${id}/feed?translatedLanguage[]=en&order[chapter]=desc&limit=${limit}&offset=${offset}`
       );
+      batch = data;
+      chapters.push(...batch);
+      offset += limit;
+    } while (batch.length === limit);
 
-      if (!response.ok) throw new Error("Failed to fetch feed");
-      const data = await response.json();
-      
-      allChapters = allChapters.concat(data.data);
-      
-      if (data.data.length < limit) {
-        hasMore = false;
-      } else {
-        offset += limit;
-      }
-    }
-
-    return allChapters.map((chap: any) => ({
+    return chapters.map((chap): ChapterData => ({
       id: chap.id,
       chapter: chap.attributes.chapter || "Oneshot",
       volume: chap.attributes.volume || "Unknown",
       title: chap.attributes.title || null,
       pages: chap.attributes.pages || 0,
-      externalUrl: chap.attributes.externalUrl || null
+      externalUrl: chap.attributes.externalUrl || null,
     }));
   } catch (error) {
     console.error("Failed to fetch manga feed:", error);
@@ -195,28 +98,13 @@ export async function getMangaFeed(id: string): Promise<ChapterData[]> {
   }
 }
 
-export interface ChapterPagesData {
-  baseUrl: string;
-  hash: string;
-  data: string[];
-}
-
 export async function getChapterPages(chapterId: string): Promise<string[]> {
   try {
-    const response = await fetch(
-      `${MANGADEX_API_URL}/at-home/server/${chapterId}`,
-      { cache: "no-store" }
-    );
-
-    if (!response.ok) throw new Error("Failed to fetch chapter pages");
-    const data = await response.json();
-
-    const baseUrl = data.baseUrl;
-    const hash = data.chapter.hash;
-    const files = data.chapter.data;
-
-    // Construct full image URLs
-    return files.map((file: string) => `${baseUrl}/data/${hash}/${file}`);
+    const { baseUrl, chapter } = await fetchMangadex<{
+      baseUrl: string;
+      chapter: { hash: string; data: string[] };
+    }>(`${MANGADEX_API_URL}/at-home/server/${chapterId}`);
+    return chapter.data.map((file) => `${baseUrl}/data/${chapter.hash}/${file}`);
   } catch (error) {
     console.error("Failed to fetch chapter pages:", error);
     return [];

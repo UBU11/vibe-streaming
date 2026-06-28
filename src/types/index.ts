@@ -1,5 +1,3 @@
-// ─── Video Types ──────────────────────────────────────
-
 export interface Video {
   id: string;
   title: string;
@@ -19,8 +17,6 @@ export interface VideoSearchResult {
   totalResults: number;
 }
 
-// ─── User Types ───────────────────────────────────────
-
 export interface UserProfile {
   id: string;
   name: string;
@@ -28,8 +24,6 @@ export interface UserProfile {
   image?: string;
   createdAt: string;
 }
-
-// ─── Watch Progress Types ─────────────────────────────
 
 export interface WatchProgress {
   userId: string;
@@ -40,16 +34,12 @@ export interface WatchProgress {
   lastWatchedAt: string;
 }
 
-// ─── Library Types ────────────────────────────────────
-
 export interface LibraryItem {
   userId: string;
   videoId: string;
   addedAt: string;
   video?: Video;
 }
-
-// ─── API Response Types ───────────────────────────────
 
 export interface ApiResponse<T> {
   data: T;
@@ -62,8 +52,6 @@ export interface PaginatedResponse<T> {
   nextCursor: string | null;
   totalResults: number;
 }
-
-// ─── Vidfast API Types ────────────────────────────────
 
 export interface VidfastVideoResponse {
   id: string;
@@ -87,8 +75,6 @@ export interface VidfastSearchResponse {
   total: number;
 }
 
-// ─── Player Types ─────────────────────────────────────
-
 export interface PlayerState {
   isPlaying: boolean;
   currentTime: number;
@@ -110,8 +96,6 @@ export type PlayerAction =
   | { type: "UPDATE_TIME"; time: number }
   | { type: "SET_DURATION"; duration: number }
   | { type: "SET_BUFFERED"; buffered: number };
-
-// ─── Category Types ───────────────────────────────────
 
 export interface Category {
   slug: string;

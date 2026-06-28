@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { getTmdbImageUrl } from "@/lib/tmdb";
 import Image from "next/image";
+import { getTmdbImageUrl } from "@/lib/tmdb";
 
 interface MediaCardProps {
   id: number;
@@ -9,18 +9,10 @@ interface MediaCardProps {
   posterPath: string | null;
   type: "movie" | "tv";
   voteAverage?: number;
-  releaseDate?: string;
+  year?: string;
 }
 
-export default function MediaCard({
-  id,
-  title,
-  posterPath,
-  type,
-  voteAverage,
-  releaseDate,
-}: MediaCardProps) {
-  const year = releaseDate ? new Date(releaseDate).getFullYear() : "";
+export default function MediaCard({ id, title, posterPath, type, voteAverage, year }: MediaCardProps) {
   const href = type === "movie" ? `/watch/movie/${id}` : `/watch/show/${id}`;
 
   return (
@@ -32,7 +24,7 @@ export default function MediaCard({
           className="media-card__poster"
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          unoptimized // using unoptimized since TMDB handles sizing and we want to skip Next's image optimization quota
+          unoptimized // TMDB serves pre-sized assets; skip the Next image optimization quota
         />
         <div className="media-card__badges">
           <span className={`media-card__badge media-card__badge--${type}`}>

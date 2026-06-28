@@ -4,7 +4,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    // Credentials provider for email/password (MVP)
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -19,8 +18,7 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
-        // TODO: Replace with actual Turso database lookup
-        // This is a placeholder for development
+        // ponytail: hardcoded demo creds until the Turso user lookup is wired up (Agent.md §3.3)
         if (
           credentials?.email === "demo@vibe.app" &&
           credentials?.password === "demo1234"

@@ -1,27 +1,21 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import MediaCard from "./MediaCard";
+import { useHorizontalScroll } from "@/hooks/use-horizontal-scroll";
+import { getMediaTitle, getMediaType, getMediaYear } from "@/lib/media";
 import type { TMDBMedia } from "@/types/tmdb";
 
 interface MediaRowProps {
   title: string;
   items: TMDBMedia[];
-  type?: "movie" | "tv" | "mixed"; // "mixed" means we rely on item.media_type
+  type?: "movie" | "tv" | "mixed";
   seeAllHref?: string;
 }
 
 export default function MediaRow({ title, items, type = "mixed", seeAllHref }: MediaRowProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.8;
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
-  };
+  const { scrollRef, scroll } = useHorizontalScroll<HTMLDivElement>();
+  const hint = type === "mixed" ? undefined : type;
 
   if (!items || items.length === 0) return null;
 
@@ -49,25 +43,16 @@ export default function MediaRow({ title, items, type = "mixed", seeAllHref }: M
 
         <div className="media-row__scroll" ref={scrollRef}>
           {items.map((item) => {
-            // Determine type
-            let itemType: "movie" | "tv" = "movie";
-            if (type !== "mixed") {
-              itemType = type;
-            } else if (item.media_type) {
-              itemType = item.media_type as "movie" | "tv";
-            } else if ("first_air_date" in item) {
-              itemType = "tv"; // rough heuristic
-            }
-
+            const itemType = getMediaType(item, hint);
             return (
               <MediaCard
                 key={`${itemType}-${item.id}`}
                 id={item.id}
-                title={'title' in item ? item.title : item.name}
+                title={getMediaTitle(item)}
                 posterPath={item.poster_path}
                 type={itemType}
                 voteAverage={item.vote_average}
-                releaseDate={'release_date' in item ? item.release_date : item.first_air_date}
+                year={getMediaYear(item)}
               />
             );
           })}

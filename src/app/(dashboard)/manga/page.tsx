@@ -11,7 +11,6 @@ export default async function MangaPage({ searchParams }: { searchParams: Promis
   const params = await searchParams;
   const query = params.q || "";
 
-  // Fetch either search results or top manga
   const topManga = query ? await searchManga(query) : await getTopManga(30, 0);
 
   return (
@@ -23,7 +22,6 @@ export default async function MangaPage({ searchParams }: { searchParams: Promis
       </div>
 
       <div className="content" style={{ padding: '0 40px', maxWidth: '1600px', margin: '0 auto' }}>
-        {/* Dynamic Search Bar */}
         <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'center' }}>
           <form action="/manga" method="GET" style={{ display: 'flex', width: '100%', maxWidth: '600px' }}>
             <input
@@ -69,10 +67,10 @@ export default async function MangaPage({ searchParams }: { searchParams: Promis
           </div>
         ) : (
           <div className="empty-state">
-            <div className="empty-state__icon">⚠️</div>
+            <div className="empty-state__icon">!</div>
             <h2 className="empty-state__title">No Manga Found</h2>
             <p className="empty-state__text">
-              We couldn't find any manga matching your search, or the MangaDex servers are down.
+              We couldn&apos;t find any manga matching your search, or the MangaDex servers are down.
             </p>
           </div>
         )}

@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
 import { searchMulti } from "@/lib/tmdb";
+import { getMediaTitle, getMediaType, getMediaYear } from "@/lib/media";
 import MediaCard from "@/components/MediaCard";
+import type { TMDBMedia } from "@/types/tmdb";
 
 export const metadata: Metadata = { title: "Search — Vibe", description: "Search for movies and TV shows on Vibe" };
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q: query = "" } = await searchParams;
-  
-  let results: any[] = [];
+
+  let results: TMDBMedia[] = [];
   if (query) {
     const data = await searchMulti(query, 1);
+    // searchMulti also returns people; keep only movies and shows.
     results = data.results.filter(
-      (item: any) => item.media_type === "movie" || item.media_type === "tv"
+      (item) => item.media_type === "movie" || item.media_type === "tv"
     );
   }
 
@@ -33,7 +36,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       ) : results.length === 0 ? (
         <div className="empty-state">
           <h2 className="empty-state__title">No results found</h2>
-          <p className="empty-state__text">We couldn't find anything for "{query}". Try a different search term.</p>
+          <p className="empty-state__text">We couldn&apos;t find anything for &quot;{query}&quot;. Try a different search term.</p>
         </div>
       ) : (
         <div className="media-grid">
@@ -41,11 +44,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <MediaCard
               key={`${item.media_type}-${item.id}`}
               id={item.id}
-              title={item.title || item.name}
+              title={getMediaTitle(item)}
               posterPath={item.poster_path}
-              type={item.media_type as "movie" | "tv"}
+              type={getMediaType(item)}
               voteAverage={item.vote_average}
-              releaseDate={item.release_date || item.first_air_date}
+              year={getMediaYear(item)}
             />
           ))}
         </div>

@@ -1,6 +1,6 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 
-// ─── Users & Profiles ─────────────────────────────────
+// Users & auth
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
@@ -42,7 +42,7 @@ export const sessions = sqliteTable("sessions", {
   expires: integer("expires", { mode: "timestamp" }).notNull(),
 });
 
-// ─── Video Catalog (Cached from Vidfast) ──────────────
+// Video catalog (cached from Vidfast)
 
 export const videos = sqliteTable("videos", {
   id: text("id").primaryKey(),
@@ -62,7 +62,7 @@ export const videos = sqliteTable("videos", {
   vidfastId: text("vidfast_id").unique(),
 });
 
-// ─── Watch History ────────────────────────────────────
+// Watch history
 
 export const watchHistory = sqliteTable("watch_history", {
   id: text("id").primaryKey(),
@@ -80,7 +80,7 @@ export const watchHistory = sqliteTable("watch_history", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
-// ─── User Library / Favourites ────────────────────────
+// User library / favourites
 
 export const userLibrary = sqliteTable("user_library", {
   id: text("id").primaryKey(),
@@ -95,7 +95,7 @@ export const userLibrary = sqliteTable("user_library", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
-// ─── API Usage Logging ────────────────────────────────
+// API usage logging
 
 export const apiUsageLogs = sqliteTable("api_usage_logs", {
   id: text("id").primaryKey(),

@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getMediaTitle, getMediaType } from "@/lib/media";
 import type { TMDBMedia } from "@/types/tmdb";
 
 interface SearchBarProps {
@@ -16,18 +17,13 @@ export default function SearchBar({
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<TMDBMedia[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(e.target as Node)
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -35,40 +31,31 @@ export default function SearchBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setQuery(value);
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
 
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
 
-      if (value.trim().length < 2) {
-        setSuggestions([]);
-        setIsOpen(false);
-        return;
-      }
+    if (value.trim().length < 2) {
+      setSuggestions([]);
+      setIsOpen(false);
+      return;
+    }
 
-      debounceRef.current = setTimeout(async () => {
-        setIsLoading(true);
-        try {
-          const res = await fetch(`/api/search?q=${encodeURIComponent(value)}`);
-          if (res.ok) {
-            const data = await res.json();
-            // Show top 5 suggestions
-            setSuggestions(data.data?.slice(0, 5) ?? []);
-            setIsOpen(true);
-          }
-        } catch {
-          // Silently fail suggestions
-        } finally {
-          setIsLoading(false);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(value)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSuggestions(data.data?.slice(0, 5) ?? []);
+          setIsOpen(true);
         }
-      }, 300);
-    },
-    []
-  );
+      } catch {
+        // Suggestions are best-effort; never surface fetch errors to the user.
+      }
+    }, 300);
+  }, []);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -111,24 +98,26 @@ export default function SearchBar({
 
       {isOpen && suggestions.length > 0 && (
         <ul className="search-bar__suggestions" id="search-suggestions">
-          {suggestions.map((item) => (
-            <li key={`${item.media_type}-${item.id}`}>
-              <button
-                className="search-bar__suggestion-item"
-                onClick={() => {
-                  setQuery(('title' in item ? item.title : item.name) || "");
-                  setIsOpen(false);
-                  const type = item.media_type === "movie" ? "movie" : "show";
-                  router.push(`/watch/${type}/${item.id}`);
-                }}
-              >
-                <span style={{ fontSize: '0.8rem', padding: '2px 6px', background: 'var(--color-primary)', border: '2px solid #000', borderRadius: '4px', marginRight: '8px' }}>
-                  {item.media_type === 'movie' ? 'MOVIE' : 'SERIES'}
-                </span>
-                {'title' in item ? item.title : item.name}
-              </button>
-            </li>
-          ))}
+          {suggestions.map((item) => {
+            const type = getMediaType(item) === "movie" ? "movie" : "show";
+            return (
+              <li key={`${item.media_type}-${item.id}`}>
+                <button
+                  className="search-bar__suggestion-item"
+                  onClick={() => {
+                    setQuery(getMediaTitle(item));
+                    setIsOpen(false);
+                    router.push(`/watch/${type}/${item.id}`);
+                  }}
+                >
+                  <span style={{ fontSize: '0.8rem', padding: '2px 6px', background: 'var(--color-primary)', border: '2px solid #000', borderRadius: '4px', marginRight: '8px' }}>
+                    {item.media_type === 'movie' ? 'MOVIE' : 'SERIES'}
+                  </span>
+                  {getMediaTitle(item)}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

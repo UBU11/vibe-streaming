@@ -2,65 +2,80 @@ import React from "react";
 import Link from "next/link";
 import { getTrendingMovies, getTrendingShows, discoverMedia } from "@/lib/tmdb";
 import LeaderboardCard from "@/components/LeaderboardCard";
-import { TMDBMovie, TMDBShow } from "@/types/tmdb";
+import type { TMDBMovie, TMDBShow } from "@/types/tmdb";
 
 export const metadata = {
   title: "Leaderboard — Vibe",
   description: "See the top trending movies, TV shows, and anime right now.",
 };
 
-function getDateAgo(days: number) {
+const ANIME_PARAMS: Record<string, string> = {
+  with_genres: "16", // Animation
+  with_original_language: "ja", // Japanese
+  sort_by: "popularity.desc",
+};
+
+const TIMEFRAME_LABELS: Record<string, string> = {
+  day: "Today",
+  week: "This Week",
+  month: "This Month",
+};
+
+function dateAgo(days: number) {
   const date = new Date();
   date.setDate(date.getDate() - days);
-  return date.toISOString().split('T')[0];
+  return date.toISOString().split("T")[0];
 }
 
-export default async function LeaderboardPage({ searchParams }: { searchParams: Promise<{ t?: string }> }) {
-  const params = await searchParams;
-  const timeframe = params.t || "week"; // day, week, month
-  
-  let topMovies: TMDBMovie[] = [];
-  let topShows: TMDBShow[] = [];
-  let topAnime: TMDBShow[] = [];
+interface LeaderboardData {
+  topMovies: TMDBMovie[];
+  topShows: TMDBShow[];
+  topAnime: TMDBShow[];
+}
 
-  // Fetch logic based on timeframe
+async function loadLeaderboard(timeframe: string): Promise<LeaderboardData> {
   if (timeframe === "month") {
     const [moviesRes, showsRes, animeRes] = await Promise.all([
-      discoverMedia("movie", { sort_by: "popularity.desc", "primary_release_date.gte": getDateAgo(30) }),
-      discoverMedia("tv", { sort_by: "popularity.desc", "first_air_date.gte": getDateAgo(30) }),
-      discoverMedia("tv", { with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc", "first_air_date.gte": getDateAgo(30) })
+      discoverMedia("movie", { sort_by: "popularity.desc", "primary_release_date.gte": dateAgo(30) }),
+      discoverMedia("tv", { sort_by: "popularity.desc", "first_air_date.gte": dateAgo(30) }),
+      discoverMedia("tv", { ...ANIME_PARAMS, "first_air_date.gte": dateAgo(30) }),
     ]);
-    topMovies = (moviesRes.results as TMDBMovie[]).slice(0, 10);
-    topShows = (showsRes.results as TMDBShow[]).slice(0, 10);
-    topAnime = (animeRes.results as TMDBShow[]).slice(0, 10);
-  } else {
-    // Day or Week
-    const tmdbTimeframe = timeframe as "day" | "week";
-    const animeDateFilter = timeframe === "day" ? 1 : 7;
-    
-    const [moviesRes, showsRes, animeRes] = await Promise.all([
-      getTrendingMovies(tmdbTimeframe),
-      getTrendingShows(tmdbTimeframe),
-      discoverMedia("tv", { with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc", "first_air_date.gte": getDateAgo(animeDateFilter) })
-    ]);
-    
-    topMovies = moviesRes.slice(0, 10);
-    topShows = showsRes.slice(0, 10);
-    topAnime = (animeRes.results as TMDBShow[]).slice(0, 10);
+    return {
+      topMovies: (moviesRes.results as TMDBMovie[]).slice(0, 10),
+      topShows: (showsRes.results as TMDBShow[]).slice(0, 10),
+      topAnime: (animeRes.results as TMDBShow[]).slice(0, 10),
+    };
   }
 
-  const timeframeLabels: Record<string, string> = {
-    day: "Today",
-    week: "This Week",
-    month: "This Month"
+  const tmdbTimeframe = timeframe as "day" | "week";
+  const animeDays = timeframe === "day" ? 1 : 7;
+  const [movies, shows, animeRes] = await Promise.all([
+    getTrendingMovies(tmdbTimeframe),
+    getTrendingShows(tmdbTimeframe),
+    discoverMedia("tv", { ...ANIME_PARAMS, "first_air_date.gte": dateAgo(animeDays) }),
+  ]);
+  return {
+    topMovies: movies.slice(0, 10),
+    topShows: shows.slice(0, 10),
+    topAnime: (animeRes.results as TMDBShow[]).slice(0, 10),
   };
+}
+
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ t?: string }>;
+}) {
+  const params = await searchParams;
+  const timeframe = params.t || "week";
+  const { topMovies, topShows, topAnime } = await loadLeaderboard(timeframe);
 
   return (
     <div className="page-container" style={{ paddingTop: '120px', paddingBottom: '80px' }}>
       <div className="page-header" style={{ marginBottom: '40px' }}>
         <h1 className="page-header__title">VIBE LEADERBOARD</h1>
         <br />
-        <span className="page-header__subtitle">Top 10 Most Popular {timeframeLabels[timeframe]}</span>
+        <span className="page-header__subtitle">Top 10 Most Popular {TIMEFRAME_LABELS[timeframe]}</span>
       </div>
 
       <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '60px' }}>
@@ -76,9 +91,8 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
       </div>
 
       <div className="leaderboard-container">
-        {/* Top Movies */}
         <div className="leaderboard-column">
-          <h2 className="leaderboard-column__header">🎬 Top Movies</h2>
+          <h2 className="leaderboard-column__header">Top Movies</h2>
           <div className="leaderboard-list">
             {topMovies.map((movie, index) => (
               <LeaderboardCard
@@ -94,9 +108,8 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
           </div>
         </div>
 
-        {/* Top TV Shows */}
         <div className="leaderboard-column">
-          <h2 className="leaderboard-column__header">📺 Top Shows</h2>
+          <h2 className="leaderboard-column__header">Top Shows</h2>
           <div className="leaderboard-list">
             {topShows.map((show, index) => (
               <LeaderboardCard
@@ -112,9 +125,8 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
           </div>
         </div>
 
-        {/* Top Anime */}
         <div className="leaderboard-column">
-          <h2 className="leaderboard-column__header">⚔️ Top Anime</h2>
+          <h2 className="leaderboard-column__header">Top Anime</h2>
           <div className="leaderboard-list">
             {topAnime.map((anime, index) => (
               <LeaderboardCard

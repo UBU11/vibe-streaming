@@ -14,9 +14,9 @@ export async function GET(request: NextRequest) {
   try {
     const results = await searchMulti(query, page);
     
-    // Filter to only movies and shows, removing people
+    // multi-search also returns people; keep only movies and shows.
     const filteredResults = results.results.filter(
-      (item: any) => item.media_type === "movie" || item.media_type === "tv"
+      (item) => item.media_type === "movie" || item.media_type === "tv"
     );
 
     return NextResponse.json({

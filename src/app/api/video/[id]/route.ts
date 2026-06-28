@@ -18,7 +18,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         tags: [],
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: "Video not found" }, { status: 404 });
   }
 }
