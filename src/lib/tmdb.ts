@@ -14,7 +14,7 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY?.trim() || "";
 async function tmdbFetch<T>(
   endpoint: string,
   params: Record<string, string> = {},
-  retries = 4
+  retries = 6
 ): Promise<T> {
   if (!TMDB_API_KEY) {
     throw new Error("TMDB_API_KEY is not set. Please add it to your .env.local file.");
@@ -30,7 +30,12 @@ async function tmdbFetch<T>(
   try {
     const response = await fetch(url.toString(), {
       headers: { "Content-Type": "application/json" },
-      cache: "no-store",
+      // Cache at the framework level (1h). TMDB metadata changes slowly, and
+      // `no-store` forced a fresh network fetch on EVERY navigation — which is
+      // what turned TMDB/Cloudfront's frequent connection resets into full-page
+      // 500s ("lost the API connection on route change"). Cached reads skip the
+      // network entirely, so moving between sections is stable.
+      next: { revalidate: 3600 },
     });
     if (!response.ok) {
       throw new Error(`TMDB API error: ${response.status} ${response.statusText}`);
@@ -38,10 +43,11 @@ async function tmdbFetch<T>(
     return await response.json();
   } catch (error) {
     if (retries <= 0) throw error;
-    // ponytail: TMDB/Cloudfront intermittently resets Node connections here
-    // (ECONNRESET). Ride through transient blips; a persistent block (bot-
-    // filtering / ISP) can't be retried away — callers degrade gracefully.
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    // ponytail: TMDB/Cloudfront resets ~60% of Node connections here (ECONNRESET)
+    // — only on a cache miss, since cached reads skip the network. Exponential
+    // backoff (capped) rides through the drops; a hard block (ISP) can't be
+    // retried away, and callers degrade gracefully.
+    await new Promise((resolve) => setTimeout(resolve, Math.min(1500, 250 * 2 ** (6 - retries))));
     return tmdbFetch(endpoint, params, retries - 1);
   }
 }
