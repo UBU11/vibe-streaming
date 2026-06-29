@@ -624,7 +624,10 @@ h1, h2, h3, h4, h5, h6, .comic-text {
   height: 56.25vw; /* 16:9 aspect ratio */
   min-height: 100vh;
   min-width: 177.77vh; /* 16:9 aspect ratio */
-  transform: translate(-50%, -50%);
+  /* ponytail: YouTube's top title/channel bar can't be killed by params
+     (showinfo is deprecated), so scale the iframe ~1.2x to crop it and the
+     bottom edge off-screen. 10% bleed each side covers the ~5%-of-height bar. */
+  transform: translate(-50%, -50%) scale(1.2);
   pointer-events: none; /* Prevent clicks on the iframe */
 }
 

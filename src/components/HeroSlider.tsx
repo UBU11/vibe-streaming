@@ -42,22 +42,24 @@ export default function HeroSlider({ items }: { items: HeroSlideItem[] }) {
             style={{ zIndex: isActive ? 1 : 0, opacity: isActive ? 1 : 0 }}
           >
             <div className="hero-slide__bg">
-              {isActive && item.trailerKey ? (
+              {/* Always paint the still first so the panel is never black while
+                  the trailer loads / autoplays / is unavailable. The iframe
+                  layers on top of it once YouTube is ready. */}
+              <img
+                src={getTmdbImageUrl(item.backdropPath, "original")}
+                alt={item.title}
+                className="hero-slide__image"
+              />
+              {isActive && item.trailerKey && (
                 <div className="hero-slide__video-wrapper">
                   <iframe
-                    src={`https://www.youtube.com/embed/${item.trailerKey}?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=${item.trailerKey}&playsinline=1`}
+                    src={`https://www.youtube.com/embed/${item.trailerKey}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0&disablekb=1&loop=1&playlist=${item.trailerKey}&playsinline=1`}
                     title="Trailer"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="hero-slide__video"
                   />
                 </div>
-              ) : (
-                <img 
-                  src={getTmdbImageUrl(item.backdropPath, "original")} 
-                  alt={item.title} 
-                  className="hero-slide__image"
-                />
               )}
               {/* Overlay for comic style and text readability */}
               <div className="hero-slide__overlay"></div>
